@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>學測＋指考英文詞彙彙整</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #60a5fa;
+      --accent-2: #34d399;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #0b1220, #0f172a);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    header {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: saturate(1.2) blur(6px);
+      background: rgba(15, 23, 42, 0.75);
+      border-bottom: 1px solid var(--border);
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px;
+      overflow-x: hidden; /* 防止手機橫向捲動 */
+    }
+    
+    /* 標題區塊 */
+    .title {
+      display: flex;
+      flex-wrap: wrap;   /* 小螢幕允許換行 */
+      gap: 6px;
+      align-items: baseline;
+    }
+    .title h1 {
+      font-size: 18px;   /* 手機預設小一點 */
+      margin: 0;
+    }
+    .title .subtitle {
+      flex: 1 1 100%;    /* 在手機上自動掉到下一行 */
+      font-size: 12px;
+      color: var(--muted);
+    }
+    @media (min-width: 768px) {
+      .title h1 { font-size: 22px; }
+      .title .subtitle { flex: unset; font-size: 14px; }
+    }
+    
+    /* 工具列 */
+    .tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .search, .controls {
+      flex: 1 1 100%;   /* 手機時各自佔滿一行 */
+      min-width: 0;     /* 防止文字撐爆容器 */
+      display: flex; gap: 8px; align-items: center;
+      background: var(--card); border: 1px solid var(--border);
+      padding: 10px; border-radius: 12px;
+    }
+    @media (min-width: 768px) {
+      .tools {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 平板以上再並排 */
+      }
+    }
+    
+    input[type="text"] {
+      flex: 1; background: #0b1220; border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: 10px 12px;
+    }
+    select {
+      background: #0b1220; border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: 10px 12px;
+    }
+    button {
+      background: var(--accent); color: #0b1220; border: none; cursor: pointer;
+      border-radius: 8px; padding: 10px 12px; font-weight: 600;
+    }
+    button.secondary { background: var(--accent-2); }
+    
+    /* 卡片區塊 */
+    main .grid {
+      display: grid; grid-template-columns: repeat(1, 1fr); gap: 16px;
+      margin-top: 16px;
+    }
+    @media (min-width: 800px) {
+      main .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px;
+    }
+    .card-header {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      border-bottom: 1px dashed var(--border); padding-bottom: 10px; margin-bottom: 10px;
+    }
+    .year { font-weight: 700; font-size: 16px; letter-spacing: 0.3px; }
+    .meta { color: var(--muted); font-size: 12px; }
+    .list { display: grid; gap: 8px; margin-top: 8px; }
+    .row { background: #0b1220; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
+    .row code { color: #cbd5e1; white-space: pre-wrap; word-break: break-word; }
+    .actions { display: flex; gap: 8px; align-items: center; }
+    .copy-status { color: var(--muted); font-size: 12px; }
+    
+    footer {
+      color: var(--muted); text-align: center; padding: 24px; margin-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="title">
+        <h1>學測＋指考英文詞彙彙整</h1>
+        <div class="subtitle">114 學測與 104～110 指考「詞彙題」選項單字，支援一鍵複製</div>
+      </div>
+      <div class="tools">
+        <div class="search">
+          <label for="searchInput">搜尋單字或年份：</label>
+          <input id="searchInput" type="text" placeholder="輸入字串（例如：‘drizzle’ 或 ‘107’）" />
+          <button id="clearSearch">清除</button>
+        </div>
+        <div class="controls">
+          <label for="yearFilter">篩選年份：</label>
+          <select id="yearFilter">
+            <option value="all">全部年份</option>
+            <option value="114">114（學測）</option>
+            <option value="113">111（學測）</option>
+            <option value="112">112（學測）</option>
+            <option value="111">113（學測）</option>
+            <option value="110t">110（試辦）</option>
+            <option value="110">110（學測）</option>
+            <option value="109">109（學測）</option>
+            <option value="108">108（學測）</option>
+            <option value="107">107（學測）</option>
+            <option value="106">106（學測）</option>
+            <option value="105">105（學測）</option>
+            <option value="104">104（學測）</option>
+            <option value="110p">110（指考）</option>
+            <option value="109p">109（指考）</option>
+            <option value="108p">108（指考）</option>
+            <option value="107p">107（指考）</option>
+            <option value="106p">106（指考）</option>
+            <option value="105p">105（指考）</option>
+            <option value="104p">104（指考）</option>
+          </select>
+          <button id="copyAll" class="secondary">複製所有年份</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="cards" class="grid">
+      <!-- Year cards will be injected here -->
+    </div>
+  </main>
+
+  <script>
+    // Year -> array of strings (each row is a comma-separated option set)
+    const DATA = {
+      "114": [
+        "container, timer, border, marker",
+        "produce, fashion, brand, trend",
+        "blurring, trimming, draining, glaring",
+        "offensive, excessive, furious, stubborn",
+        "draft, text, brush, plot",
+        "vacant, casual, fragile, remote",
+        "enormous, gigantic, exclusive, multiple",
+        "halted, hatched, possessed, reinforced",
+        "graced, praised, addressed, credited",
+        "verbally, dominantly, legitimately, relevantly"
+      ],
+      "113": [
+        "slender, spicy, slight, slippery",
+        "emerging, flashing, rushing, floating",
+        "apt, due, bound, docked",
+        "density, humidity, circulation, atmosphere",
+        "stay, take, serve, stand",
+        "forceful, realistic, compulsory, distinctive",
+        "advantage, revenge, remedy, credit",
+        "proposes, contains, promises, confirms",
+        "appeal, approach, operation, observation",
+        "eligibly, randomly, apparently, consequently"
+      ],
+      "112": [
+        "sticky, greasy, clumsy, mighty",
+        "clap, toss, pose, snap",
+        "siblings, commuters, ancestors, instructors",
+        "blank, bare, hollow, queer",
+        "liability, generosity, integrity, sincerity",
+        "resolve, fraction, privilege, recall",
+        "provoke, counter, expose, convert",
+        "crippled, accelerated, rendered, ventured",
+        "choked, disturbed, enclosed, injected",
+        "undoubtedly, roughly, understandably, supposedly"
+      ],
+      "111": [
+        "delivered, advanced, offered, stretched",
+        "assistant, influence, contribution, politician",
+        "chat, quiz, puppet, variety",
+        "potentially, delicately, ambiguously, optionally",
+        "tagging, flocking, rolling, snapping",
+        "enormous, intimate, agreeable, ultimate",
+        "identical, visible, available, remarkable",
+        "moderate, absolute, promising, eventual",
+        "trial, route, strike, quest",
+        "bounces, blushes, polishes, transfers"
+      ],
+      "110t": [
+        "misplacing, misleading, misjudging, mistreating",
+        "steady, routine, mobile, conscious",
+        "intensity, volume, frequency, operation",
+        "universal, artificial, dominant, conventional",
+        "charged, directed, refused, pardoned",
+        "drill, harvest, shift, labor",
+        "array, entry, outlook, illusion",
+        "idle, stiff, vacant, sensible",
+        "merely, strictly, readily, variously",
+        "awe, exile, fraction, boredom"
+        ],
+      "110": [
+        "alert, spare, tease, oppose",
+        "airway, operator, escalator, instrument",
+        "obediently, apparently, logically, thoroughly",
+        "moist, stale, crisp, fertile",
+        "glimpse, latitude, segment, parachute",
+        "persuasive, harmonious, conventional, revolutionary",
+        "operation, interaction, adjustment, explanation",
+        "buried, punched, scattered, tumbled",
+        "kits, trials, zones, proofs",
+        "actively, earnestly, jointly, naturally",
+        "applauding, flourishing, circulating, exceeding",
+        "absurd, cautious, vigorous, obstinate",
+        "singular, countable, favorable, defensive",
+        "equipped, resolved, committed, associated",
+        "departed, resumed, transported, corresponded"
+      ],
+      "109": [
+        "balance, conclusion, definition, harmony",
+        "bored, amazed, charmed, informed",
+        "lecturer, publisher, researcher, manufacturer",
+        "flattered, transformed, relieved, decreased",
+        "solid, crispy, original, smooth",
+        "monument, refugee, souvenir, firecracker",
+        "construct, expose, recite, install",
+        "convention, relationship, insurance, ownership",
+        "mission, target, cradle, milestone",
+        "abundant, immense, permissible, descriptive",
+        "erased, canceled, overlooked, replaced",
+        "mock, sneak, prompt, glare",
+        "barely, evenly, currently, formerly",
+        "sober, majestic, vigorous, noticeable",
+        "creative, disputable, circular, magnificent"
+      ],
+      "108": [
+        "discipline, facility, privacy, representation",
+        "eager, liberal, mean, inferior",
+        "conveyed, associated, interpreted, predicted",
+        "landmarks, restrictions, percentages, circumstances",
+        "appointed, declared, performed, involved",
+        "advised, occupied, proposed, recognized",
+        "sociable, expressive, reasonable, objective",
+        "particularly, sensibly, moderately, considerably",
+        "stumble, graze, navigate, dwell",
+        "initial, annual, evident, occasional",
+        "factors, outcomes, missions, identities",
+        "distantly, meaningfully, cheerfully, vividly",
+        "napping, scooping, flipping, chirping",
+        "benefit, contact, gesture, favor",
+        "causal, durable, manual, violent"
+      ],
+      "107": [
+        "mature, usual, seasonal, particular",
+        "requirements, techniques, situations, principles",
+        "distribute, fulfill, convince, monitor",
+        "chilly, liberal, hollow, definite",
+        "slipped, dumped, twisted, recovered",
+        "decisions, beliefs, styles, degrees",
+        "persuasive, tolerable, suspicious, demanding",
+        "anxiously, precisely, evidently, distinctly",
+        "deposited, reserved, vanished, surrounded",
+        "credit, impress, relieve, acquire",
+        "flake, blossom, blanket, flash",
+        "angles, margins, exceptions, limitations",
+        "hardship, comment, bargain, penalty",
+        "conducted, confirmed, implied, improved",
+        "efficient, reliable, massive, adequate"
+      ],
+      "106": [
+        "tenderly, properly, solidly, favorably",
+        "pursue, swear, reserve, draft",
+        "native, tricky, remote, vacant",
+        "appoint, eliminate, occupy, identify",
+        "relaxing, embarrassing, appealing, defending",
+        "barely, fairly, merely, readily",
+        "guide, trace, code, print",
+        "accessed, edited, imposed, urged",
+        "constitutions, objections, sculptures, adventures",
+        "dip, beam, spark, path",
+        "enclosed, installed, preserved, rewarded",
+        "signal, glory, medal, profit",
+        "balanced, calculated, disguised, registered",
+        "aware, ashamed, doubtful, guilty",
+        "innocence, estimation, assurance, observation"
+      ],
+      "105": [
+        "journey, traffic, concert, record",
+        "awful, drowsy, tragic, upset",
+        "accent, identity, gratitude, signature",
+        "ceased, committed, confined, conveyed",
+        "injury, offense, sacrifice, victim",
+        "security, maturity, facility, generosity",
+        "tolerates, associates, demonstrates, exaggerates",
+        "durable, private, realistic, numerous",
+        "occasionally, automatically, enormously, innocently",
+        "isolation, promotion, retirement, announcement",
+        "alert, itchy, steady, flexible",
+        "conquered, estimated, guaranteed, intensified",
+        "ruined, cracked, hastened, neglected",
+        "primitive, spiritual, representative, informative",
+        "liberally, individually, financially, environmentally"
+      ],
+      "104": [
+        "relative, severe, primitive, flexible",
+        "settle, declare, reward, neglect",
+        "technical, significant, affordable, expressive",
+        "operations, illustrations, engagements, accomplishment",
+        "movement, registration, tendency, departure",
+        "swiftly, nearly, loosely, formally",
+        "delicate, automatic, essential, maximum",
+        "intimate, ashamed, earnest, urgent",
+        "medals, quotes, labels, recipes",
+        "evidently, furiously, obediently, suspiciously",
+        "contribute, impress, promote, estimate",
+        "rescued, assured, inspired, conveyed",
+        "tolerance, guarantee, regulation, distribution",
+        "explore, interact, negotiate, participate",
+        "screenings, listings, clippings, blockings"
+      ],
+      "110p": [
+        "minimal, hostile, barren, systematic",
+        "revealed, cancelled, declared, explored",
+        "dodge, whip, split, litter",
+        "qualifications, regulations, preventions, conventions",
+        "filtering, glittering, purifying, mimicking",
+        "sorrowful, flexible, eventual, optional",
+        "consistently, respectfully, indifferently, enormously",
+        "resignation, approval, enforcement, signature",
+        "infectious, outrageous, ultimate, explicit",
+        "ballots, tokens, fragments, warranties"
+      ],
+      "109p": [
+        "colleagues, villains, executives, intruders",
+        "indispensable, comprehensible, affordable, permissible",
+        "caution, metaphor, enthusiasm, impulse",
+        "outnumbered, initiated, contradicted, triggered",
+        "devotion, competence, prospect, momentum",
+        "manifest, resemble, execute, instruct",
+        "unethical, legitimate, inclusive, nonmilitant",
+        "solitary, contagious, rigid, distinctive",
+        "acknowledges, contemplates, inquires, regulates",
+        "decently, compatibly, relevantly, virtually"
+      ],
+      "108p": [
+        "property, margin, shelter, reservation",
+        "constructive, absolute, influential, peculiar",
+        "engaged, contained, included, located",
+        "awe, plea, oath, merit",
+        "sturdy, coarse, vigorous, portable",
+        "muscular, barren, chubby, ragged",
+        "bankruptcy, graduation, capacity, depression",
+        "glistened, rippled, shattered, mingled",
+        "fortify, rehearse, diminish, strangle",
+        "distinctively, contagiously, frantically, tremendously"
+      ],
+      "107p": [
+        "rarely, constantly, shortly, nearly",
+        "errands, affairs, belongings, connections",
+        "humbled, resisted, detected, handled",
+        "compliments, compromises, convictions, confessions",
+        "browse, stride, rumble, conceal",
+        "drought, fluid, scandal, nuisance",
+        "tribute, consent, devotion, preference",
+        "hailed, previewed, cautioned, doomed",
+        "grim, keen, mild, foul",
+        "quarrelsome, respective, preventive, contagious"
+      ],
+      "106p": [
+        "avoid, overgrow, bother, pursue",
+        "contentment, dominance, explosion, affection",
+        "opponent, performer, attendant, messenger",
+        "hasten, fasten, lengthen, strengthen",
+        "induces, conceals, recruits, absorbs",
+        "monotony, disturbance, salvation, remainder",
+        "chronically, hysterically, simultaneously, resistantly",
+        "coveted, populated, surpassed, rotated",
+        "ecological, provincial, authentic, redundant",
+        "herbal, frantic, magnetic, descriptive"
+      ],
+      "105p": [
+        "germs, agencies, codes, indexes",
+        "pedaled, bounced, commuted, tumbled",
+        "recommended, encountered, outnumbered, speculated",
+        "verbally, barely, stably, massively",
+        "diversion, medication, nuisance, fulfillment",
+        "supervision, intuition, compassion, obligation",
+        "brisk, joyous, superb, decent",
+        "extremes, forecasts, atmospheres, homelands",
+        "legendary, eligible, marginal, confidential",
+        "robust, solitary, imperative, terminal"
+      ],
+      "104p": [
+        "secure, crucial, sloppy, cautious",
+        "mumbled, perceived, summoned, trampled",
+        "layman, patriot, hacker, tenant",
+        "inadequate, distinctive, vigorous, abundant",
+        "explicitly, ironically, persistently, selectively",
+        "drizzle, hail, breeze, tornado",
+        "naive, acute, confidential, skeptical",
+        "amplify, mobilize, penetrate, undermine",
+        "unfolding, ascending, elaborating, illustrating",
+        "entitled, adapted, oriented, intimidated"
+      ]
+    };
+
+    const container = document.getElementById('cards');
+    const yearFilter = document.getElementById('yearFilter');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearch = document.getElementById('clearSearch');
+    const copyAllBtn = document.getElementById('copyAll');
+
+    function createYearCard(year, rows) {
+      const card = document.createElement('section');
+      card.className = 'card';
+      card.dataset.year = year;
+
+      // Header
+      const header = document.createElement('div');
+      header.className = 'card-header';
+      function displayYear(year) {
+        // 去掉最後一個字母 t 或 p
+        return year.replace(/[tp]$/, "");
+      }
+      const left = document.createElement('div');
+      function examType(year) {
+        if (year === "110t") {
+          return "（試辦）";
+        }
+        if (["114","113","112","111","110","109","108","107","106","105","104"].includes(year)) {
+          return "（學測）";
+        }
+        return "（指考）";
+      }
+        
+      left.innerHTML = `
+        <div class="year">年度：${displayYear(year)}${examType(year)}</div>
+        <div class="meta">題數：${rows.length}組（每組四個選項）</div>
+      `;
+
+
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+
+      const copyBtn = document.createElement('button');
+      copyBtn.textContent = '複製本年度全部';
+      copyBtn.addEventListener('click', () => copyYear(year));
+
+      const status = document.createElement('span');
+      status.className = 'copy-status';
+      status.textContent = '';
+
+      actions.appendChild(copyBtn);
+      actions.appendChild(status);
+
+      header.appendChild(left);
+      header.appendChild(actions);
+
+      // List
+      const list = document.createElement('div');
+      list.className = 'list';
+
+      rows.forEach((row, idx) => {
+        const item = document.createElement('div');
+        item.className = 'row';
+        item.dataset.text = row.toLowerCase();
+
+        // Row content + copy single row
+        const rowLine = document.createElement('div');
+        rowLine.style.display = 'flex';
+        rowLine.style.justifyContent = 'space-between';
+        rowLine.style.alignItems = 'center';
+        rowLine.style.gap = '8px';
+
+        const code = document.createElement('code');
+        code.textContent = row;
+
+        const copyOne = document.createElement('button');
+        copyOne.textContent = '複製此行';
+        copyOne.style.background = 'transparent';
+        copyOne.style.color = 'var(--accent)';
+        copyOne.style.border = '1px solid var(--border)';
+        copyOne.addEventListener('click', () => copyText(row, copyOne));
+
+        rowLine.appendChild(code);
+        rowLine.appendChild(copyOne);
+        item.appendChild(rowLine);
+        list.appendChild(item);
+      });
+
+      card.appendChild(header);
+      card.appendChild(list);
+      return card;
+    }
+
+    const ORDER = [
+      // 學測
+      "114","113","112","111","110t","110","109","108","107","106","105","104",
+      // 指考
+      "110p","109p","108p","107p","106p","105p","104p"
+    ];
+    
+    function render() {
+      container.innerHTML = '';
+      ORDER.forEach(year => {
+        if (DATA[year]) {
+          const card = createYearCard(year, DATA[year]);
+          container.appendChild(card);
+        }
+      });
+    }
+
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = 0;
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+          document.execCommand("copy");
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      }
+    }
+
+
+    function copyYear(year) {
+      const rows = DATA[year] || [];
+      const text = rows.join('\n');
+      const card = [...document.querySelectorAll('.card')].find(c => c.dataset.year === year);
+      const status = card?.querySelector('.copy-status');
+      navigator.clipboard.writeText(text).then(() => {
+        if (status) {
+          status.textContent = '已複製到剪貼簿';
+          setTimeout(() => (status.textContent = ''), 1400);
+        }
+      });
+    }
+
+    function copyAll() {
+      const allText = Object.entries(DATA)
+        .map(([year, rows]) => `【${year}】\n${rows.join('\n')}`)
+        .join('\n\n');
+      navigator.clipboard.writeText(allText).then(() => {
+        copyAllBtn.textContent = '已複製所有年份！';
+        copyAllBtn.style.background = 'var(--accent-2)';
+        setTimeout(() => {
+          copyAllBtn.textContent = '複製所有年份';
+          copyAllBtn.style.background = 'var(--accent)';
+        }, 1400);
+      });
+    }
+
+    function applyFilters() {
+      const yearVal = yearFilter.value;
+      const q = searchInput.value.trim().toLowerCase();
+
+      document.querySelectorAll('.card').forEach(card => {
+        const yearMatch = (yearVal === 'all') || (card.dataset.year === yearVal);
+        const textMatch = !q || [...card.querySelectorAll('.row')].some(r => r.dataset.text.includes(q));
+        card.classList.toggle('hidden', !(yearMatch && textMatch));
+
+        // Per-card row filtering when searching
+        if (q) {
+          card.querySelectorAll('.row').forEach(r => {
+            r.classList.toggle('hidden', !r.dataset.text.includes(q));
+          });
+        } else {
+          card.querySelectorAll('.row').forEach(r => r.classList.remove('hidden'));
+        }
+      });
+    }
+
+    // Init
+    render();
+
+    // Events
+    yearFilter.addEventListener('change', applyFilters);
+    searchInput.addEventListener('input', applyFilters);
+    clearSearch.addEventListener('click', () => {
+      searchInput.value = '';
+      applyFilters();
+    });
+    copyAllBtn.addEventListener('click', copyAll);
+  </script>
+</body>
+</html>
