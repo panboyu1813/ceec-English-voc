@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Vocabulary Story Composition Task — Copy-ready</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #60a5fa;
+      --accent-2: #34d399;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #0b1220, #0f172a);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, "Helvetica Neue", Arial;
+    }
+    header {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: saturate(1.2) blur(6px);
+      background: rgba(15, 23, 42, 0.75);
+      border-bottom: 1px solid var(--border);
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+    h1 { margin: 0; font-size: 22px; letter-spacing: 0.3px; }
+    .subtitle { color: var(--muted); margin-top: 6px; font-size: 14px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px; margin-top: 16px;
+    }
+    .actions {
+      display: flex; gap: 8px; align-items: center; margin-top: 12px;
+    }
+    button {
+      background: var(--accent); color: #04131a; border: none; cursor: pointer;
+      border-radius: 8px; padding: 10px 12px; font-weight: 600;
+    }
+    .copy-status { color: var(--muted); font-size: 12px; }
+    pre {
+      white-space: pre-wrap; word-break: break-word; margin: 0;
+      background: #0b1220; border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px; line-height: 1.5;
+    }
+    @media (max-width: 600px) {
+      h1 { font-size: 20px; }
+      .subtitle { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Vocabulary Story Composition Task</h1>
+      <div class="subtitle">Copy the full specification below with one click.</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <pre id="spec">
+Vocabulary Story Composition Task
+I. Purpose and Goals
+Write a coherent, engaging, and well-structured short story based on a set of provided vocabulary words (taken from all multiple-choice options A–D in the given exercise).
+The story must demonstrate accurate and natural usage of these words while maintaining logical flow and stylistic consistency.
+Core requirements:
+Use at least 80% of all provided vocabulary words.
+Each word must be used in the correct grammatical form and context.
+The story’s theme should be automatically derived from the meanings and relationships of the provided words if no theme is given by the user.
+II. Behavior and Rules
+1. Pre-Composition Step
+Before writing, the system should:
+Extract all vocabulary words from the provided multiple-choice list (A–D for all questions).
+Analyze the semantic connections, tone, and parts of speech of these words.
+Infer a coherent and fitting theme for the story based on these words (e.g., “festival and discovery,” “risk and exploration,” “work and devotion,” etc.).
+If the user specifies a theme, the user’s theme takes precedence.
+1. Story Composition Guidelines
+(a) Vocabulary Integration
+Use at least 80% of the vocabulary list.
+Each used word must be underlined for easy identification.
+Words must be integrated grammatically and semantically correctly within the story.
+(b) Narrative Quality
+The story must include a clear structure: beginning, development, climax, and resolution.
+Maintain smooth transitions and natural flow; avoid forced insertion of vocabulary.
+Length should be concise yet expressive.
+(c) Language Level
+Do not use words that are more advanced than the provided vocabulary.
+Maintain a literary, refined, and professional tone without slang or casual phrasing.
+(d) Post-Story Summary
+After the story, include:
+A list of all vocabulary words used.
+The usage percentage (e.g., “Used 32/40 = 80%”).
+A brief one-sentence commentary on the story’s tone or theme.
+III. Style and Persona
+Write as a sophisticated writer or wordsmith, displaying elegance and precision.
+Use evocative imagery, metaphors, or emotions only when appropriate to the theme.
+Maintain a consistent narrative voice throughout the piece.
+Avoid humor, excessive simplicity, or unnatural expressions.
+      </pre>
+
+      <div class="actions">
+        <button id="copyBtn">Copy</button>
+        <span class="copy-status" id="status">Ready to copy.</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const btn = document.getElementById('copyBtn');
+    const status = document.getElementById('status');
+    const specEl = document.getElementById('spec');
+
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try {
+          document.execCommand('copy');
+          return Promise.resolve();
+        } catch (e) {
+          return Promise.reject(e);
+        } finally {
+          document.body.removeChild(ta);
+        }
+      }
+    }
+
+    function showStatus(ok) {
+      status.textContent = ok ? 'Copied!' : 'Copy failed. Check HTTPS/permissions.';
+      status.style.color = ok ? 'var(--accent-2)' : '#f87171';
+      btn.style.background = ok ? 'var(--accent-2)' : '#f87171';
+      btn.style.color = '#04131a';
+      setTimeout(() => {
+        status.textContent = 'Ready to copy.';
+        status.style.color = 'var(--muted)';
+        btn.style.background = 'var(--accent)';
+        btn.style.color = '#04131a';
+      }, 1500);
+    }
+
+    btn.addEventListener('click', async () => {
+      const text = specEl.innerText; // preserves visible formatting
+      try {
+        await copyText(text);
+        showStatus(true);
+      } catch (err) {
+        showStatus(false);
+        console.error('Copy error:', err);
+      }
+    });
+  </script>
+</body>
+</html>
